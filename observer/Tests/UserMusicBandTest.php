@@ -14,8 +14,6 @@ class UserMusicBandTest extends TestCase
         $albert = new User('Albert Mudhat');
         $michelle = new User('Michelle Ectron');
         $yves = new User('Yves Haigé');
-
-
         $band = new MusicBand('Daft PHPunk');
 
         $band->attach($albert);

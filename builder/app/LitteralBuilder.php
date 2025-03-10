@@ -2,7 +2,7 @@
 
 namespace App;
 
-class MySQLQueryBuilder implements QueryBuilderInterface
+class LitteralBuilder implements QueryBuilderInterface
 {
     protected $select = [];
     protected $from = '';
@@ -20,6 +20,7 @@ class MySQLQueryBuilder implements QueryBuilderInterface
         return $this;
     }
 
+
     public function from(string $table): QueryBuilderInterface
     {
         $this->from = $table;
@@ -36,14 +37,22 @@ class MySQLQueryBuilder implements QueryBuilderInterface
 
     public function andWhere(string $condition): QueryBuilderInterface
     {
-        $this->where[] = ['AND', $condition];
+        if (empty($this->where)) {
+            return $this->where($condition);
+        }
+
+        $this->where[] = ['ET', $condition];
 
         return $this;
     }
 
     public function orWhere(string $condition): QueryBuilderInterface
     {
-        $this->where[] = ['OR', $condition];
+        if (empty($this->where)) {
+            return $this->where($condition);
+        }
+
+        $this->where[] = ['OU', $condition];
 
         return $this;
     }
@@ -52,25 +61,25 @@ class MySQLQueryBuilder implements QueryBuilderInterface
     public function build(): string
     {
         if (empty($this->select)) {
-            $this->select = ['*'];
+            $this->select = ['toutes les colonnes'];
         }
 
         if (empty($this->from)) {
-            throw new \RuntimeException('La clause FROM est obligatoire.');
+            throw new \RuntimeException('La table source doit être spécifiée.');
         }
 
-        $sql = 'SELECT ' . implode(', ', $this->select) . ' FROM ' . $this->from;
+        $text = 'Je sélectionne ' . implode(', ', $this->select) . ' de la table ' . $this->from;
 
         if (!empty($this->where)) {
-            $sql .= ' WHERE ';
+            $text .= ' où ';
             $cond = array_shift($this->where);
-            $sql .= is_array($cond) ? $cond[1] : $cond;
+            $text .= is_array($cond) ? $cond[1] : $cond;
 
             foreach ($this->where as $condition) {
-                $sql .= ' ' . $condition[0] . ' ' . $condition[1];
+                $text .= ' ' . $condition[0] . ' ' . $condition[1];
             }
         }
 
-        return $sql;
+        return $text . '.';
     }
 }
